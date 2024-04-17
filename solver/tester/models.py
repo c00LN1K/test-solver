@@ -4,27 +4,14 @@ from django.urls import reverse
 
 
 # Create your models here.
-class Profile(models.Model):
-    name = models.CharField(verbose_name='Имя пользователя', blank=True, max_length=33)
-    photo = models.ImageField(upload_to='profile_images/', default=None, blank=True, null=True,
-                              verbose_name='Фото пользователя')
-    user = models.OneToOneField(to=get_user_model(), on_delete=models.CASCADE, related_name='profile')
-
-    class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
-
-    def __str__(self):
-        return self.user.username
-
 
 class Test(models.Model):
     class Status(models.IntegerChoices):
         OPEN = 0, 'Открытое'
         PRIVATE = 1, 'Приватное'
 
-    title = models.CharField(verbose_name='Название', max_length=100)
-    content = models.JSONField()
+    title = models.CharField(verbose_name='Название', max_length=101)
+    content = models.JSONField(blank=True, null=True, default=None)
     counter = models.IntegerField(verbose_name='Число решений', default=0)
     author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name='test',
                                default=None)
@@ -51,6 +38,7 @@ class Test(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название', unique=True)
+
     # slug = models.SlugField(max_length=100, unique=True, db_index=True)
 
     class Meta:

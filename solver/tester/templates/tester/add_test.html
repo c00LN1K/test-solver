@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание теста</title>
+    <style>
+        .question-container {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .answer-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .delete-answer-btn {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-answer-btn:hover {
+            font-weight: bold;
+        }
+
+        .delete-question-btn {
+            margin-top: 10px;
+            cursor: pointer;
+            color: red;
+            float: right;
+        }
+
+        .delete-question-btn:hover {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Создание теста</h1>
+<form id="test-form" method="post">
+    {% csrf_token %}
+    {% include 'tester/includes/show_messages.html' %}
+    <p><label for="test-title">Название теста:</label>
+    <input type="text" id="test-title" name="title" required></p>
+
+    <div id="questions-container">
+        <!-- Вопросы будут добавляться сюда -->
+    </div>
+
+    <p>
+        <button type="button" id="add-question-btn">Добавить вопрос</button>
+    </p>
+    <p>
+        <button type="submit" id="save-test-btn">Сохранить тест</button>
+    </p>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        class TestCreator {
+            constructor() {
+                this.questionsContainer = document.getElementById('questions-container');
+                this.addQuestionBtn = document.getElementById('add-question-btn');
+                this.questionCount = 0;
+                this.addQuestion(); // Добавляем один вопрос при загрузке страницы
+                this.addQuestionBtn.addEventListener('click', this.addQuestion.bind(this));
+                document.getElementById('test-form').addEventListener('submit', this.validateForm.bind(this));
+            }
+
+            addQuestion() {
+                this.questionCount++;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.innerHTML = `
+                    <label for="question-${this.questionCount}">Вопрос:</label>
+                    <textarea name="question-${this.questionCount}" class="question" rows="1" style="width: 20%;"></textarea>
+                    <ul class="answer-list" data-question="${this.questionCount}">
+                        <li class="answer-item">
+                            <input type="radio" name="correct-${this.questionCount}" value="0">
+                            <textarea type="text" name="answer-${this.questionCount}-0" placeholder="Ответ" style="width: 20%;"></textarea>
+                            <div class="delete-answer-btn">❌</div>
+                        </li>
+                    </ul>
+                    <div class="delete-question-btn">Удалить вопрос</div>
+                    <button type="button" class="add-answer-btn" data-question="${this.questionCount}">Добавить ответ</button>
+                `;
+                this.questionsContainer.appendChild(questionDiv);
+
+                const deleteQuestionBtn = questionDiv.querySelector('.delete-question-btn');
+                deleteQuestionBtn.addEventListener('click', () => {
+                    questionDiv.remove();
+                });
+
+                const answerBtn = questionDiv.querySelector('.add-answer-btn');
+                answerBtn.addEventListener('click', () => {
+                    this.addAnswer(questionDiv);
+                });
+
+                questionDiv.querySelectorAll('textarea').forEach(textarea => {
+                    textarea.addEventListener('input', () => {
+                        textarea.style.height = 'auto';
+                        textarea.style.height = (textarea.scrollHeight) + 'px';
+                    });
+                });
+            }
+
+            addAnswer(questionDiv) {
+                const questionNumber = questionDiv.querySelector('.add-answer-btn').getAttribute('data-question');
+                const answerList = questionDiv.querySelector(`.answer-list[data-question="${questionNumber}"]`);
+                const answerCount = answerList.querySelectorAll('.answer-item').length;
+                const newAnswerItem = document.createElement('li');
+                newAnswerItem.className = 'answer-item';
+                newAnswerItem.innerHTML = `
+                    <input type="radio" name="correct-${questionNumber}" value="${answerCount}">
+                    <textarea type="text" name="answer-${questionNumber}-${answerCount}" placeholder="Ответ" style="width: 20%;"></textarea>
+                    <div class="delete-answer-btn">❌</div>
+                `;
+                answerList.appendChild(newAnswerItem);
+
+                const deleteAnswerBtn = newAnswerItem.querySelector('.delete-answer-btn');
+                deleteAnswerBtn.addEventListener('click', () => {
+                    newAnswerItem.remove();
+                });
+            }
+
+            validateForm(event) {
+                const questions = document.querySelectorAll('.question-container');
+                let isValid = true;
+
+                questions.forEach((questionContainer, index) => {
+                    const questionText = questionContainer.querySelector('.question').value;
+                    const answersList = questionContainer.querySelectorAll('.answer-item');
+                    let correctAnswerCount = 0;
+
+                    answersList.forEach(answerItem => {
+                        const isCorrect = answerItem.querySelector('input[type="radio"]').checked;
+                        if (isCorrect) {
+                            correctAnswerCount++;
+                        }
+                    });
+
+                    if (correctAnswerCount !== 1) {
+                        isValid = false;
+                        alert(`Для вопроса ${index + 1} выберите один правильный ответ`);
+                    }
+                });
+
+                if (!isValid) {
+                    event.preventDefault(); // Предотвращаем отправку формы, если есть невалидные вопросы
+                }
+            }
+        }
+
+        new TestCreator();
+    });
+</script>
+</body>
+</html>

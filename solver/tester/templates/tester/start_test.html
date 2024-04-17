@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>{{title}}</h1>
+<p>Тест: {{test.title}}</p>
+<p>Кол-во вопросов: {{test.content | length}}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="duration">Выберите длительность (мин.): </label>
+    <input type="number" id="duration" name="duration" style="width: 5%;">
+    <input type="hidden" name="test_id" value="{{test.pk}}">
+    <p><input type="submit" value="Начать тест"></p>
+</form>
+
+<!--{% for q, data in test.content.items %}-->
+<!--    <p>{{data.question}}</p>-->
+<!--    <ul>-->
+<!--        {% for number, ans in data.answers.items %}-->
+<!--        <li>{{ans}}</li>-->
+<!--        {% endfor %}-->
+<!--    </ul>-->
+{% endfor %}
+
+{% endblock %}
