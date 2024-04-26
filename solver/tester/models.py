@@ -64,3 +64,22 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Result(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='results')
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, verbose_name='Тест', related_name='results')
+    result = models.JSONField(blank=True, null=True, default=None, verbose_name='Ответы')
+    numbers_of_correct = models.IntegerField(verbose_name='Число верных')
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
+
+    class Meta:
+        verbose_name = 'Результат'
+        verbose_name_plural = 'Результаты'
+
+    def get_absolute_url(self):
+        return reverse('result', kwargs={'result_id': self.pk})
+
+    def __str__(self):
+        return f'Result: user:{self.user.username}, test: {self.test.pk}, when: {self.time_create}'
