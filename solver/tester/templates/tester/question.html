@@ -1,15 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
 
+<p>{{ data.question }}</p>
 
-<!-- Вопрос: -->
-<!--Варианты ответов: ответ + radio -->
-<!-- Кнопки (form - POST): Завершить, предыдущий (неактивная для первого) и следующий вопрос (неактивная для последнего) -->
+<form method="post" id="quizForm" onsubmit="return validateForm()">
+    {% csrf_token %}
+    {% for number, text in data.answers.items %}
+    <p>
+        <input type="radio" name="choice" value="{{ number }}" {% if number == marked %}checked{% endif %}>
+        {{ text }}
+    </p>
+    {% endfor %}
+
+    {% if prev != 0 %}
+    <button type="submit" name="action" value="-1">Предыдущий вопрос</button>
+    {% endif %}
+
+    {% if next != 0 %}
+    <button type="submit" name="action" value="1">Следующий вопрос</button>
+    {% endif %}
+    <button type="submit" name="action" value="0">Закончить</button>
+</form>
+
+<script>
+function validateForm() {
+    const form = document.getElementById('quizForm');
+    const radios = form.elements['choice']; // Получаем все элементы radio по имени 'choice'
+    let checked = false;
+
+    for (let i = 0; i < radios.length; i++) {
+        if (radios[i].checked) {
+            checked = true;
+            break; // Если хотя бы один выбран, прекратить проверку
+        }
+    }
+
+    if (!checked) {
+        alert('Пожалуйста, выберите хотя бы один вариант ответа!');
+        return false; // Остановить отправку формы
+    }
+
+    return true; // Продолжить отправку формы, если хотя бы один radio выбран
+}
+</script>
+
+{% endblock %}
