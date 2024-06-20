@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{title}}</h1>
+
+<h2>Мои тесты</h2>
+{% if tests %}
+<table>
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Категория</th>
+        <th>Предмет</th>
+        <th>Статус</th>
+        <th>Дата создания</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for test in tests %}
+    <tr>
+        <td>{{test.title}}</td>
+        <td>{{test.category}}</td>
+        <td>{{test.subject}}</td>
+        {% if test.status %}
+        <td>Приватный</td>
+        {% else %}
+        <td>Открытый</td>
+        {% endif %}
+        <td>{{test.time_create}}</td>
+        <td><a href="{% url 'start_test' test.pk %}">Начать</a></td>
+        <td><a href="{% url 'edit_test' test.pk %}">Изменить</a></td>
+        <form method="post" action="{% url 'delete_test' test.pk %}">
+            {% csrf_token %}
+            <td>
+                <button type="submit">Удалить</button>
+            </td>
+        </form>
+
+    </tr>
+    </tbody>
+</table>
+{% endfor %}
+{% else %}
+Упс, у вас кажется ещё нет тестов. Так давайте это <a href="{% url 'add_test' %}">исправлять</a>!
+{% endif %}
+<h2>Мои результаты</h2>
+{% if results %}
+{% for result in results %}
+<p><a href="{% url 'result' result.pk %}">{{result.time_create}} - {{result.test.title}}</a>
+<form method="post" action="{% url 'delete_result' result.pk %}">
+    {% csrf_token %}
+    <td>
+        <button type="submit">Удалить</button>
+    </td>
+</form>
+</p>
+{% endfor %}
+{% else %}
+<p>Ой, кажется вы ещё не решали ни одного теста :( </p>
+<p>Так чего же вы ждете! </p>
+{% endif %}
+{% endblock %}

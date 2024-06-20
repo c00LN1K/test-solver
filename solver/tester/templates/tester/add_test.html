@@ -1,50 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание теста</title>
-    <style>
-        .question-container {
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
+{% extends 'base.html' %}
 
-        .answer-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .answer-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .delete-answer-btn {
-            color: red;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .delete-answer-btn:hover {
-            font-weight: bold;
-        }
-
-        .delete-question-btn {
-            margin-top: 10px;
-            cursor: pointer;
-            color: red;
-            float: right;
-        }
-
-        .delete-question-btn:hover {
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
+{% block content %}
 <h1>Создание теста</h1>
 <form id="test-form" method="post">
     {% csrf_token %}
@@ -163,5 +119,4 @@
         new TestCreator();
     });
 </script>
-</body>
-</html>
+{% endblock %}

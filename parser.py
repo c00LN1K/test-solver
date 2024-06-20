@@ -8,7 +8,7 @@ def read_docx(file_path):
     table_data = []
 
     for table in doc.tables:
-        for row in table.rows[:33]:
+        for row in table.rows:
             row_data = []
             for cell in row.cells:
                 for paragraph in cell.paragraphs:

@@ -5,10 +5,88 @@
 <head>
     <meta charset="UTF-8">
     <title>{{title}}</title>
+    <style>
+        .question-container {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .answer-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .delete-answer-btn {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-answer-btn:hover {
+            font-weight: bold;
+        }
+
+        .delete-question-btn {
+            margin-top: 10px;
+            cursor: pointer;
+            color: red;
+            float: right;
+        }
+
+        .delete-question-btn:hover {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
     <!--    <link type="text/css" href="{% static 'man/css/styles.css'%}" rel="stylesheet">-->
 
 </head>
 <body>
+{% block mainmenu %}
+<div class="header">
+    <ul id="mainmenu" class="mainmenu">
+        {% for k, v in menu.items %}
+        <li><a href="{{v}}">{{k}}</a></li>
+        {% endfor %}
+        {% if user.is_authenticated %}
+        <li class="last"> <a href="{% url 'profile' %}">{{user.username}}</a> |
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+            <button type="submit">Выйти</button>
+            </form>
+        </li>
+        {% else %}
+        <li class="last"><a href="{% url 'users:login' %}">Войти</a> | <a href="{% url 'users:register' %}">Регистрация</a></li>
+        {% endif %}
+    </ul>
+    <div class="clear"></div>
+</div>
+{% endblock mainmenu %}
+
 {% include 'tester/includes/show_messages.html' %}
 {% block content %}
 {% endblock %}

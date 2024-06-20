@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache, caches
 from django.http import Http404
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.views.generic import DetailView
+from django.urls import reverse_lazy
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from django_redis import get_redis_connection
 
 from .models import Test, Result
@@ -13,8 +14,22 @@ DEFAULT_TTL = 10
 
 
 # Create your views here.
-def main(request):
-    return render(request, 'tester/main.html', context={'title': 'Главная страница'})
+
+
+class MainPage(ListView):
+    template_name = 'tester/main.html'
+    extra_context = {'title': 'Главная страница'}
+    context_object_name = 'tests'
+
+    def get_queryset(self):
+        return Test.objects.filter(status=0)
+
+
+class UpdateTest(UpdateView):
+    template_name = 'tester/edit_test.html'
+    form_class = ''
+    success_url = reverse_lazy('Profile')
+    extra_context = {'title': 'Изменение теста'}
 
 
 def parse_test(d: dict):
@@ -155,11 +170,11 @@ def finish_test(request, test_id):
     data = cache.get(user_key)
     user = request.user
     test = Test.objects.get(pk=test_id)
-    result_id = Result.objects.create(user=user, test=test, result=data,
-                                      numbers_of_correct=get_number_correct(data, test.content))
+    result = Result.objects.create(user=user, test=test, result=data,
+                                   numbers_of_correct=get_number_correct(data, test.content))
     cache.delete(user_key)
     print(cache.ttl(f'test_{test_id}'))
-    return redirect(reverse('result', kwargs={'user_id': user.pk, 'result_id': result_id}))
+    return redirect(reverse('result', kwargs={'result_id': result.pk}))
 
 
 class ShowResult(LoginRequiredMixin, DetailView):
@@ -175,3 +190,11 @@ class ShowResult(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Result, pk=self.kwargs[self.pk_url_kwarg])
+
+
+@login_required()
+def show_profile(request):
+    user = request.user
+    tests = user.test.all()
+    results = user.results.all()
+    return render(request, 'tester/profile.html', context={'title': 'Профиль', 'tests': tests, 'results': results})

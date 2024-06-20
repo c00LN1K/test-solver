@@ -1,5 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content%}
-<h1>Здесь совсем скоро будет главная страница)</h1>
+<h1>Добро пожаловать!</h1>
+<h2>Недавно добавленные тесты:</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Категория</th>
+        <th>Предмет</th>
+        <th>Дата создания</th>
+        <th>Автор</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for test in tests %}
+    <tr>
+        <td>{{test.title}}</td>
+        <td>{{test.category}}</td>
+        <td>{{test.subject}}</td>
+        <td>{{test.time_create}}</td>
+        <td>{{test.author.username}}</td>
+        <td><a href="{% url 'start_test' test.pk %}">Пройти</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
